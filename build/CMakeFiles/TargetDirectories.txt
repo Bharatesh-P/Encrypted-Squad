@@ -1,0 +1,13 @@
+C:/Users/Unkno/Downloads/kill-it-db/EncryptedSquad_fixed/EncryptedSquad/build/CMakeFiles/kvdb_core.dir
+C:/Users/Unkno/Downloads/kill-it-db/EncryptedSquad_fixed/EncryptedSquad/build/CMakeFiles/kvdb.dir
+C:/Users/Unkno/Downloads/kill-it-db/EncryptedSquad_fixed/EncryptedSquad/build/CMakeFiles/torture.dir
+C:/Users/Unkno/Downloads/kill-it-db/EncryptedSquad_fixed/EncryptedSquad/build/CMakeFiles/test_record.dir
+C:/Users/Unkno/Downloads/kill-it-db/EncryptedSquad_fixed/EncryptedSquad/build/CMakeFiles/test_recovery.dir
+C:/Users/Unkno/Downloads/kill-it-db/EncryptedSquad_fixed/EncryptedSquad/build/CMakeFiles/test_batch.dir
+C:/Users/Unkno/Downloads/kill-it-db/EncryptedSquad_fixed/EncryptedSquad/build/CMakeFiles/test_compaction.dir
+C:/Users/Unkno/Downloads/kill-it-db/EncryptedSquad_fixed/EncryptedSquad/build/CMakeFiles/test_concurrency.dir
+C:/Users/Unkno/Downloads/kill-it-db/EncryptedSquad_fixed/EncryptedSquad/build/CMakeFiles/test_disk_full.dir
+C:/Users/Unkno/Downloads/kill-it-db/EncryptedSquad_fixed/EncryptedSquad/build/CMakeFiles/benchmark_recovery.dir
+C:/Users/Unkno/Downloads/kill-it-db/EncryptedSquad_fixed/EncryptedSquad/build/CMakeFiles/test.dir
+C:/Users/Unkno/Downloads/kill-it-db/EncryptedSquad_fixed/EncryptedSquad/build/CMakeFiles/edit_cache.dir
+C:/Users/Unkno/Downloads/kill-it-db/EncryptedSquad_fixed/EncryptedSquad/build/CMakeFiles/rebuild_cache.dir
