@@ -1,0 +1,2 @@
+C:\Users\Unkno\AppData\Local\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin\ar.exe qc libkvdb_core.a CMakeFiles/kvdb_core.dir/src/record.cpp.obj CMakeFiles/kvdb_core.dir/src/engine.cpp.obj CMakeFiles/kvdb_core.dir/src/recovery.cpp.obj CMakeFiles/kvdb_core.dir/src/compaction.cpp.obj CMakeFiles/kvdb_core.dir/src/platform_win.cpp.obj
+C:\Users\Unkno\AppData\Local\Microsoft\WinGet\Packages\BrechtSanders.WinLibs.POSIX.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\mingw64\bin\ranlib.exe libkvdb_core.a
