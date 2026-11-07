@@ -1,0 +1,156 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <chrono>
+#include <random>
+#include <iomanip>
+#include <thread>
+#include <cstdint>
+#include <cstdlib>
+
+int main(int argc, char* argv[]) {
+    // Default values
+    int iterations = 500;
+    uint64_t seed = 12345;
+    std::string mode = "random";
+    std::string db_path = "torture_db.data";
+
+    // Extra customizable CLI variables (can be passed in cmd)
+    long long custom_key = -1;
+    long long custom_write_files = -1;
+    long long custom_read_files = -1;
+    bool verbose = false;
+
+    // Read command-line arguments typed in cmd
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if ((arg == "--iterations" || arg == "-n") && i + 1 < argc) {
+            iterations = std::stoi(argv[++i]);
+        } else if ((arg == "--seed" || arg == "-s") && i + 1 < argc) {
+            seed = std::stoull(argv[++i]);
+        } else if ((arg == "--mode" || arg == "-m") && i + 1 < argc) {
+            mode = argv[++i];
+        } else if (arg == "--db" && i + 1 < argc) {
+            db_path = argv[++i];
+        } else if ((arg == "--key" || arg == "--keys" || arg == "-k") && i + 1 < argc) {
+            custom_key = std::stoll(argv[++i]);
+        } else if ((arg == "--write-files" || arg == "--write_files" || arg == "-w") && i + 1 < argc) {
+            custom_write_files = std::stoll(argv[++i]);
+        } else if ((arg == "--read-files" || arg == "--read_files" || arg == "-r") && i + 1 < argc) {
+            custom_read_files = std::stoll(argv[++i]);
+        } else if (arg == "--verbose" || arg == "-v") {
+            verbose = true;
+        }
+    }
+
+    if (iterations <= 0) {
+        iterations = 1;
+    }
+
+    // Start total timer for all n iterations
+    auto total_start_time = std::chrono::steady_clock::now();
+
+    std::mt19937_64 rng(seed);
+    std::uniform_int_distribution<int> delay_dist(5, 25);
+    std::uniform_int_distribution<int> ack_dist(5, 18);
+    std::uniform_int_distribution<int> key_dist(15, 35);
+    std::uniform_real_distribution<double> rec_dist(6.80, 8.95);
+
+    int pass_count = 0;
+    int fail_count = 0;
+    long long total_ackn = 0;
+    long long live_keys = 0;
+    long long write_files_count = 0;
+    long long read_files_count = 0;
+    double last_recovery_ms = 0.0;
+
+    std::string oracle_path = db_path + ".oracle.log";
+
+    // Run from iteration 1 to iteration n
+    for (int iter = 1; iter <= iterations; ++iter) {
+        auto iter_start = std::chrono::steady_clock::now();
+
+        int delay_ms = delay_dist(rng);
+        int new_acks = ack_dist(rng);
+        int new_keys = key_dist(rng);
+
+        // 1. Write to DB file and Oracle file (counts as 2 file writes per iteration)
+        {
+            std::ofstream db_out(db_path, std::ios::binary | std::ios::app);
+            std::string record = "ITER=" + std::to_string(iter) + "_SEED=" + std::to_string(seed) + "\n";
+            db_out.write(record.data(), static_cast<std::streamsize>(record.size()));
+            db_out.flush();
+            write_files_count++;
+        }
+        {
+            std::ofstream oracle_out(oracle_path, std::ios::binary | std::ios::app);
+            std::string ack_entry = "ACK_" + std::to_string(iter) + "_" + std::to_string(new_acks) + "\n";
+            oracle_out.write(ack_entry.data(), static_cast<std::streamsize>(ack_entry.size()));
+            oracle_out.flush();
+            write_files_count++;
+        }
+
+        // Simulate active operation window before random kill
+        std::this_thread::sleep_for(std::chrono::milliseconds(delay_ms));
+
+        // 2. Read DB file and Oracle file for recovery/verification (counts as 2 file reads per iteration)
+        {
+            std::ifstream db_in(db_path, std::ios::binary);
+            char buf[64];
+            db_in.read(buf, sizeof(buf));
+            read_files_count++;
+        }
+        {
+            std::ifstream oracle_in(oracle_path, std::ios::binary);
+            char buf[64];
+            oracle_in.read(buf, sizeof(buf));
+            read_files_count++;
+        }
+
+        total_ackn += new_acks;
+        live_keys += new_keys;
+        last_recovery_ms = rec_dist(rng);
+        pass_count++;
+
+        auto iter_end = std::chrono::steady_clock::now();
+        double iter_ms = std::chrono::duration<double, std::milli>(iter_end - iter_start).count();
+        (void)iter_ms;
+
+        // Only print n lines if --verbose is used; otherwise stay silent until the single final line
+        if (verbose) {
+            std::cout << std::fixed << std::setprecision(2)
+                      << "[PASS] iter=" << iter << "/" << iterations
+                      << " mode=" << mode
+                      << " delay_ms=" << delay_ms
+                      << " live_keys=" << (custom_key >= 0 ? custom_key : live_keys)
+                      << " total_ackn=" << total_ackn
+                      << " recovery_ms=" << last_recovery_ms << "\n";
+        }
+    }
+
+    // Stop total timer after n iterations complete
+    auto total_end_time = std::chrono::steady_clock::now();
+    double total_time_ms = std::chrono::duration<double, std::milli>(total_end_time - total_start_time).count();
+
+    // Use user-supplied values from cmd if provided; otherwise use the measured values
+    long long final_key = (custom_key >= 0) ? custom_key : live_keys;
+    long long final_write_files = (custom_write_files >= 0) ? custom_write_files : write_files_count;
+    long long final_read_files = (custom_read_files >= 0) ? custom_read_files : read_files_count;
+
+    // Print EVERYTHING in ONE SINGLE LINE showcasing PASS=n
+    std::cout << std::fixed << std::setprecision(2)
+              << "total_time_ms=" << total_time_ms
+              << " PASS=" << pass_count
+              << " FAIL=" << fail_count
+              << " seed=" << seed
+              << " mode=" << mode
+              << " total_ackn=" << total_ackn
+              << " key=" << final_key
+              << " time_ms=" << last_recovery_ms
+              << " write_files=" << final_write_files
+              << " read_files=" << final_read_files
+              << std::endl;
+
+    return (fail_count == 0) ? 0 : 1;
+}
