@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 900" width="100%" height="100%">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#222222" />
+    </marker>
+    <style>
+      .bg { fill: #ffffff; }
+      .node { fill: #ffffff; stroke: #222222; stroke-width: 1.5; }
+      .pill { fill: #ffffff; stroke: #222222; stroke-width: 1.8; }
+      .edge { fill: none; stroke: #222222; stroke-width: 1.4; marker-end: url(#arrow); }
+      .label-bg { fill: #ffffff; }
+      .txt { font-family: Arial, Helvetica, sans-serif; font-size: 13px; fill: #222222; text-anchor: middle; }
+      .edge-txt { font-family: Arial, Helvetica, sans-serif; font-size: 12.5px; fill: #333333; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <!-- White Background -->
+  <rect class="bg" width="820" height="900" />
+
+  <!-- ==================== LEFT FLOW: NORMAL OPERATIONS ==================== -->
+
+  <!-- Start Node -->
+  <rect class="pill" x="175" y="20" width="170" height="68" rx="34" ry="34" />
+  <text class="txt" x="260" y="38">Start: user sends a</text>
+  <text class="txt" x="260" y="53">command</text>
+  <text class="txt" x="260" y="68">(put / get / delete /</text>
+  <text class="txt" x="260" y="82">batch)</text>
+
+  <line class="edge" x1="260" y1="88" x2="260" y2="128" />
+
+  <!-- Decision: Write or Read? -->
+  <polygon class="node" points="260,128 325,188 260,248 195,188" />
+  <text class="txt" x="260" y="192">Write or Read?</text>
+
+  <!-- Read Branch Edge -->
+  <polyline class="edge" points="227.5,218 175,265 175,315" />
+  <rect class="label-bg" x="155" y="268" width="40" height="18" />
+  <text class="edge-txt" x="175" y="281">Read</text>
+
+  <!-- Write Branch Edge -->
+  <polyline class="edge" points="292.5,218 345,265 345,315" />
+  <rect class="label-bg" x="325" y="268" width="40" height="18" />
+  <text class="edge-txt" x="345" y="281">Write</text>
+
+  <!-- Read Step 1 -->
+  <rect class="node" x="95" y="315" width="160" height="54" />
+  <text class="txt" x="175" y="339">Find the key in the</text>
+  <text class="txt" x="175" y="355">memory index</text>
+
+  <line class="edge" x1="175" y1="369" x2="175" y2="455" />
+
+  <!-- Read Step 2 -->
+  <rect class="node" x="105" y="455" width="140" height="54" />
+  <text class="txt" x="175" y="479">Read the value</text>
+  <text class="txt" x="175" y="495">from the log file</text>
+
+  <line class="edge" x1="175" y1="509" x2="175" y2="610" />
+
+  <!-- Read End -->
+  <rect class="pill" x="115" y="610" width="120" height="36" rx="18" ry="18" />
+  <text class="txt" x="175" y="633">Return the value</text>
+
+  <!-- Write Step 1 -->
+  <rect class="node" x="265" y="315" width="160" height="54" />
+  <text class="txt" x="345" y="339">Add the record to the</text>
+  <text class="txt" x="345" y="355">end of the log file</text>
+
+  <line class="edge" x1="345" y1="369" x2="345" y2="455" />
+
+  <!-- Write Step 2 -->
+  <rect class="node" x="265" y="455" width="160" height="54" />
+  <text class="txt" x="345" y="479">Force it onto the disk</text>
+  <text class="txt" x="345" y="495">(fsync)</text>
+
+  <line class="edge" x1="345" y1="509" x2="345" y2="595" />
+
+  <!-- Write Step 3 -->
+  <rect class="node" x="265" y="595" width="160" height="54" />
+  <text class="txt" x="345" y="619">Update the memory</text>
+  <text class="txt" x="345" y="635">index</text>
+
+  <line class="edge" x1="345" y1="649" x2="345" y2="705" />
+
+  <!-- Write End -->
+  <rect class="pill" x="270" y="705" width="150" height="46" rx="23" ry="23" />
+  <text class="txt" x="345" y="725">Send ACK = 'saved</text>
+  <text class="txt" x="345" y="741">safely'</text>
+
+  <!-- ==================== RIGHT FLOW: CRASH & RECOVERY ==================== -->
+
+  <!-- Crash Start -->
+  <rect class="pill" x="490" y="30" width="170" height="48" rx="24" ry="24" />
+  <text class="txt" x="575" y="51">If the program is killed</text>
+  <text class="txt" x="575" y="67">or the power fails</text>
+
+  <line class="edge" x1="575" y1="78" x2="575" y2="170" />
+
+  <!-- Restart -->
+  <rect class="node" x="490" y="170" width="170" height="40" />
+  <text class="txt" x="575" y="195">Restart the database</text>
+
+  <line class="edge" x1="575" y1="210" x2="575" y2="300" />
+
+  <!-- Recovery Scan -->
+  <rect class="node" x="495" y="300" width="160" height="84" />
+  <text class="txt" x="575" y="324">Recovery: read the</text>
+  <text class="txt" x="575" y="340">log file</text>
+  <text class="txt" x="575" y="356">from the start and</text>
+  <text class="txt" x="575" y="372">check every record</text>
+
+  <line class="edge" x1="575" y1="384" x2="575" y2="415" />
+
+  <!-- Decision: Broken Data? -->
+  <polygon class="node" points="575,415 665,495 575,575 485,495" />
+  <text class="txt" x="575" y="484">Half-written or</text>
+  <text class="txt" x="575" y="500">broken data at the</text>
+  <text class="txt" x="575" y="516">end?</text>
+
+  <!-- No Branch Edge -->
+  <polyline class="edge" points="530,535 515,560 515,690 545,715" />
+  <rect class="label-bg" x="500" y="618" width="30" height="18" />
+  <text class="edge-txt" x="515" y="631">No</text>
+
+  <!-- Yes Branch Edge -->
+  <polyline class="edge" points="620,535 635,560 635,600" />
+  <rect class="label-bg" x="618" y="562" width="34" height="18" />
+  <text class="edge-txt" x="635" y="575">Yes</text>
+
+  <!-- Cut It Off Node -->
+  <rect class="node" x="555" y="600" width="160" height="84" />
+  <text class="txt" x="635" y="624">Cut it off</text>
+  <text class="txt" x="635" y="640">(batch without</text>
+  <text class="txt" x="635" y="656">COMMIT is removed</text>
+  <text class="txt" x="635" y="672">fully)</text>
+
+  <!-- Edge from Cut It Off to Rebuild -->
+  <polyline class="edge" points="635,684 635,695 605,715" />
+
+  <!-- Rebuild Memory Index -->
+  <rect class="node" x="495" y="715" width="160" height="54" />
+  <text class="txt" x="575" y="739">Rebuild the memory</text>
+  <text class="txt" x="575" y="755">index</text>
+
+  <line class="edge" x1="575" y1="769" x2="575" y2="815" />
+
+  <!-- Database Ready End -->
+  <rect class="pill" x="495" y="815" width="160" height="62" rx="31" ry="31" />
+  <text class="txt" x="575" y="838">Database ready:</text>
+  <text class="txt" x="575" y="854">nothing that got an</text>
+  <text class="txt" x="575" y="870">ACK is lost</text>
+</svg>
